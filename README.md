@@ -130,3 +130,29 @@ Desarrollado con:
 Microcontrolador:
 
 - STM32F401RE
+
+  ---
+  Imagenes
+  Capturas
+  <img width="921" height="575" alt="image" src="https://github.com/user-attachments/assets/3e6371bf-f937-4378-801c-27081eea4e30" />
+<img width="921" height="320" alt="image" src="https://github.com/user-attachments/assets/ac9b8ab2-c0ca-41c2-94bd-cd9e3bd0315b" />
+<img width="921" height="354" alt="image" src="https://github.com/user-attachments/assets/3666637e-49b1-43dd-9c6b-dade506a7a34" />
+
+Circuito en fisico 
+<img width="5712" height="4284" alt="IMG_1204" src="https://github.com/user-attachments/assets/2020e1cc-07de-4d1f-b63d-d6eba83a8c36" />
+<img width="5712" height="4284" alt="IMG_1205" src="https://github.com/user-attachments/assets/f9b203e6-a930-4886-96b5-fb897e263a77" />
+<img width="5712" height="4284" alt="IMG_1203" src="https://github.com/user-attachments/assets/3a8a9d4f-20b7-4b97-9f48-2fe3832c7f53" />
+<img width="5712" height="4284" alt="IMG_1206" src="https://github.com/user-attachments/assets/89d17947-ff6f-4572-8e36-fe9ba735a85b" />
+<img width="3024" height="4032" alt="IMG_1207" src="https://github.com/user-attachments/assets/5fda7e71-7fd2-454b-8b9d-ced76bed9d45" />
+
+---
+
+Conclusión
+
+En esta práctica se implementó un sistema multitarea utilizando FreeRTOS sobre una tarjeta STM32F401RE. Se desarrollaron tareas independientes para el parpadeo rápido y lento de un LED, así como una tarea encargada de realizar la lectura del ADC cuando el usuario presiona un botón.
+
+Durante el desarrollo se comprobó el funcionamiento de mecanismos importantes de FreeRTOS, como la creación, suspensión y reanudación de tareas mediante TaskHandle_t, permitiendo controlar el flujo de ejecución del sistema de manera ordenada. También se utilizó el Idle Hook para detectar cuando no existen tareas activas y aprovechar ese tiempo para monitorear eventos externos sin necesidad de crear una tarea adicional.
+
+El sistema logró cumplir con los requerimientos establecidos: ejecutar el parpadeo rápido durante 5 segundos, continuar con el parpadeo lento durante otros 5 segundos y posteriormente entrar en un estado de espera. En dicho estado, el sistema puede regresar automáticamente al modo rápido o realizar una lectura del ADC cuando se detecta la presión del botón, mostrando el resultado en la terminal mediante comunicación UART.
+
+Esta práctica permitió reforzar conocimientos relacionados con sistemas operativos en tiempo real, planificación de tareas, manejo de GPIO, conversión analógica-digital, comunicación serial y administración eficiente de recursos en sistemas embebidos.
