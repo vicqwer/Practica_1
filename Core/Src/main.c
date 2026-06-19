@@ -15,6 +15,31 @@
   *
   ******************************************************************************
   */
+/*
+ *
+ * Integrantes:
+ * Victor Hugo Barrera Garcia y Sergio Garcia Hernandez
+ *
+ * Conclusion:
+ * En esta practica se implemento un sistema multitarea en STM32
+ * utilizando FreeRTOS, donde se controlo el parpadeo de un LED en
+ * dos velocidades diferentes y se realizo la lectura del ADC al
+ * presionar un boton.
+ *
+ * Se comprobo que las tareas pueden coordinarse mediante suspension
+ * y reanudacion, permitiendo que el sistema ejecute primero el modo
+ * rapido durante 5 segundos, despues el modo lento durante 5 segundos
+ * y finalmente entre a un estado de espera.
+ *
+ * Durante el estado de espera, si se presiona el boton, el sistema
+ * lee el valor del ADC, calcula el voltaje correspondiente y lo
+ * muestra por UART. Si no se presiona el boton, el programa regresa
+ * automaticamente al modo rapido despues de 5 segundos.
+ *
+ * Esta practica permitio reforzar conceptos importantes de sistemas
+ * embebidos en tiempo real, como tareas, retardos, prioridades,
+ * Idle Hook, lectura analogica y comunicacion serial.
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
