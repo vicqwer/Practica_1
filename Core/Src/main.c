@@ -378,85 +378,117 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-int uart2_write(int ch){
-/*Make sure the transmit data register is empty*/
-while(!(USART2->SR & USART_SR_TXE)){}
-/*Write to transmit data register*/
-USART2->DR = (ch & 0xFF);
-return ch;
-}
-int __io_putchar(int ch){
-uart2_write(ch);
-return ch;
+// Función usada para enviar un carácter por UART2
+int uart2_write(int ch)
+{
+    // Espera hasta que el registro de transmisión esté vacío
+    while (!(USART2->SR & USART_SR_TXE)) {}
+
+    // Envía el carácter por el registro de datos de USART2
+    USART2->DR = (ch & 0xFF);
+
+    // Regresa el carácter enviado
+    return ch;
 }
 
+// Redirección de printf hacia UART2
+int __io_putchar(int ch)
+{
+    uart2_write(ch);   // Envía cada carácter de printf por UART2
+    return ch;
+}
+
+// Tarea encargada del parpadeo rápido del LED
 void vTaskLedRapido(void *pvParameters)
 {
-    for(;;)
+    for (;;)
     {
-        printf("LED_R\r\n");
+        printf("LED_R\r\n");   // Indica por UART que inició el modo rápido
 
+        // Guarda el tiempo inicial del modo rápido
         uint32_t tiempoInicio = xTaskGetTickCount();
 
-        while((xTaskGetTickCount() - tiempoInicio) < pdMS_TO_TICKS(5000))
+        // Mantiene el parpadeo rápido durante 5 segundos
+        while ((xTaskGetTickCount() - tiempoInicio) < pdMS_TO_TICKS(5000))
         {
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_9);
-            vTaskDelay(pdMS_TO_TICKS(100));
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_9);   // Cambia el estado del LED
+            vTaskDelay(pdMS_TO_TICKS(100));          // Retardo de 100 ms
         }
 
+        // Apaga el LED al terminar el modo rápido
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
 
+        // Reanuda la tarea del LED lento
         vTaskResume(hTaskLedLento);
 
+        // Suspende esta tarea hasta que otra tarea la vuelva a reanudar
         vTaskSuspend(NULL);
     }
 }
 
+// Tarea encargada del parpadeo lento del LED
 void vTaskLedLento(void *pvParameters)
 {
-    for(;;)
+    for (;;)
     {
-        printf("LED_L\r\n");
+        printf("LED_L\r\n");   // Indica por UART que inició el modo lento
 
+        // Guarda el tiempo inicial del modo lento
         uint32_t tiempoInicio = xTaskGetTickCount();
 
-        while((xTaskGetTickCount() - tiempoInicio) < pdMS_TO_TICKS(5000))
+        // Mantiene el parpadeo lento durante 5 segundos
+        while ((xTaskGetTickCount() - tiempoInicio) < pdMS_TO_TICKS(5000))
         {
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_9);
-            vTaskDelay(pdMS_TO_TICKS(500));
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_9);   // Cambia el estado del LED
+            vTaskDelay(pdMS_TO_TICKS(500));          // Retardo de 500 ms
         }
 
+        // Apaga el LED al terminar el modo lento
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
 
+        // Activa la bandera para indicar que el sistema entra al estado IDLE
         IDLE_HOOK = 1;
+
+        // Guarda el tiempo en que inició el estado IDLE
         tiempoInicioIdle = xTaskGetTickCount();
 
+        // Suspende esta tarea hasta que vuelva a ser reanudada
         vTaskSuspend(NULL);
     }
 }
 
-
- void vTaskADC(void *pvParameters)
+// Tarea encargada de leer el ADC y mostrar el voltaje
+void vTaskADC(void *pvParameters)
 {
-    for(;;)
+    for (;;)
     {
-        	uint32_t adc = Leer_ADC();
-        	float voltaje = (adc * 3.3f) / 4095.0f;
-        	printf("Valor del ADC: %lu  Voltaje: %.2f V\r\n", adc, voltaje);
-            vTaskDelay(pdMS_TO_TICKS(500));
+        // Lee el valor digital del ADC
+        uint32_t adc = Leer_ADC();
 
+        // Convierte el valor ADC a voltaje considerando referencia de 3.3 V y resolución de 12 bits
+        float voltaje = (adc * 3.3f) / 4095.0f;
+
+        // Imprime por UART el valor crudo del ADC y su equivalente en voltaje
+        printf("Valor del ADC: %lu  Voltaje: %.2f V\r\n", adc, voltaje);
+
+        // Pequeño retardo para evitar lecturas demasiado rápidas
+        vTaskDelay(pdMS_TO_TICKS(500));
+
+        // Después de leer el ADC, regresa inmediatamente al modo de LED rápido
         vTaskResume(hTaskLedRapido);
+
+        // Suspende la tarea ADC hasta que el botón vuelva a activarla
         vTaskSuspend(NULL);
     }
 }
 
 // Función para obtener el valor del ADC
-uint32_t Leer_ADC(void) {
-HAL_ADC_Start(&hadc1);
-HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-return HAL_ADC_GetValue(&hadc1);
+uint32_t Leer_ADC(void)
+{
+    HAL_ADC_Start(&hadc1);                         // Inicia la conversión ADC
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY); // Espera hasta que termine la conversión
+    return HAL_ADC_GetValue(&hadc1);               // Regresa el valor digital leído
 }
-
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
