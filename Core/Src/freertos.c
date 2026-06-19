@@ -74,7 +74,39 @@ void vApplicationIdleHook( void )
    function, because it is the responsibility of the idle task to clean up
    memory allocated by the kernel to any task that has since been deleted. */
 
+	    static uint32_t ultimoMensaje = 0;
 
+	    if (IDLE_HOOK == 1)
+	    {
+
+	        if ((xTaskGetTickCount() - ultimoMensaje) >= pdMS_TO_TICKS(2500))
+	        {
+	            ultimoMensaje = xTaskGetTickCount();
+	            printf("Estoy en idle\r\n");
+	            printf("CPU libre\r\n");
+	        }
+
+	        if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) == GPIO_PIN_SET)
+	        {
+	           // uint32_t adc = Leer_ADC();
+	           // float voltaje = (adc * 3.3f) / 4095.0f;
+
+	            printf("Boton presionado\r\n");
+	            //printf("Valor del ADC: %lu  Voltaje: %.2f V\r\n", adc, voltaje);
+
+	            IDLE_HOOK = 0;
+	            vTaskResume(hTaskADC);
+
+	        }
+
+	        if ((xTaskGetTickCount() - tiempoInicioIdle) >= pdMS_TO_TICKS(5000))
+	        {
+
+	        	IDLE_HOOK = 0;
+
+	            vTaskResume(hTaskLedRapido);
+	        }
+	    }
 
 }
 /* USER CODE END 2 */
