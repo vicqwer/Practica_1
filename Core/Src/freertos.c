@@ -105,6 +105,7 @@ void vApplicationIdleHook( void )
 	        vTaskResume(hTaskLedRapido);            // Reanuda la tarea del LED rápido
 	    }
 	}
+}
 /* USER CODE END 2 */
 
 /* Private application code --------------------------------------------------*/
