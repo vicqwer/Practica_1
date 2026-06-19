@@ -74,41 +74,37 @@ void vApplicationIdleHook( void )
    function, because it is the responsibility of the idle task to clean up
    memory allocated by the kernel to any task that has since been deleted. */
 
-	    static uint32_t ultimoMensaje = 0;
+	static uint32_t ultimoMensaje = 0;   // Guarda el último tick en el que se imprimió el mensaje de IDLE
 
-	    if (IDLE_HOOK == 1)
+	// Solo entra a esta lógica cuando el sistema está en estado IDLE
+	if (IDLE_HOOK == 1)
+	{
+	    // Imprime un mensaje cada 2500 ms para indicar que la CPU está libre
+	    if ((xTaskGetTickCount() - ultimoMensaje) >= pdMS_TO_TICKS(2500))
 	    {
+	        ultimoMensaje = xTaskGetTickCount();   // Actualiza el tiempo del último mensaje
 
-	        if ((xTaskGetTickCount() - ultimoMensaje) >= pdMS_TO_TICKS(2500))
-	        {
-	            ultimoMensaje = xTaskGetTickCount();
-	            printf("Estoy en idle\r\n");
-	            printf("CPU libre\r\n");
-	        }
-
-	        if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) == GPIO_PIN_SET)
-	        {
-	           // uint32_t adc = Leer_ADC();
-	           // float voltaje = (adc * 3.3f) / 4095.0f;
-
-	            printf("Boton presionado\r\n");
-	            //printf("Valor del ADC: %lu  Voltaje: %.2f V\r\n", adc, voltaje);
-
-	            IDLE_HOOK = 0;
-	            vTaskResume(hTaskADC);
-
-	        }
-
-	        if ((xTaskGetTickCount() - tiempoInicioIdle) >= pdMS_TO_TICKS(5000))
-	        {
-
-	        	IDLE_HOOK = 0;
-
-	            vTaskResume(hTaskLedRapido);
-	        }
+	        printf("Estoy en idle\r\n");           // Mensaje de estado IDLE
+	        printf("CPU libre\r\n");               // Indica que no hay tareas activas ejecutándose
 	    }
 
-}
+	    // Verifica si el botón conectado en PA6 fue presionado
+	    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) == GPIO_PIN_SET)
+	    {
+	        printf("Boton presionado\r\n");        // Reporta por UART que se detectó el botón
+
+	        IDLE_HOOK = 0;                          // Sale del estado IDLE
+	        vTaskResume(hTaskADC);                  // Reanuda la tarea encargada de leer el ADC
+	    }
+
+	    // Si pasan 5 segundos en IDLE sin presionar el botón,
+	    // el sistema regresa automáticamente al parpadeo rápido
+	    if ((xTaskGetTickCount() - tiempoInicioIdle) >= pdMS_TO_TICKS(5000))
+	    {
+	        IDLE_HOOK = 0;                          // Sale del estado IDLE
+	        vTaskResume(hTaskLedRapido);            // Reanuda la tarea del LED rápido
+	    }
+	}
 /* USER CODE END 2 */
 
 /* Private application code --------------------------------------------------*/
